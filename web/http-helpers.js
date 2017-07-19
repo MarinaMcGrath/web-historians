@@ -1,6 +1,6 @@
-var path = require('path');
-var fs = require('fs');
-var archive = require('../helpers/archive-helpers');
+const path = require('path');
+const fs = require('fs');
+const archive = require('../helpers/archive-helpers');
 
 exports.headers = {
   'access-control-allow-origin': '*',
