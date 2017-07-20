@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const _ = require('underscore');
 const http = require('http');
+const request = require('request');
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
  * Consider using the `paths` object below to store frequently used file paths. This way,
@@ -23,26 +24,19 @@ exports.initialize = pathsObj => {
 // The following function names are provided to you to suggest how you might
 // modularize your code. Keep it clean!
 
-exports.readListOfUrls = cb => fs.readFile(exports.paths.list, 'utf8', (err, sites) => {
-  err ? console.error(err) : cb(sites.split('\n'));
-});
+exports.readListOfUrls = cb => fs.readFile(exports.paths.list, 'utf8', (err, sites) => 
+  err ? console.error(err) : cb(sites.split('\n')));
 
 exports.isUrlInList = (url, cb) => exports.readListOfUrls(sites => cb(sites.includes(url)));
 
 exports.addUrlToList = (url, cb) => fs.appendFile(exports.paths.list, url, 'utf8', cb);
 
-exports.isUrlArchived = (url, cb) => fs.readdir(exports.paths.archivedSites, 'utf8', (err, files) => {
-  err ? console.error(err) : cb(files.includes(url));
-});
+exports.isUrlArchived = (url, cb) => fs.readdir(exports.paths.archivedSites, 'utf8', (err, files) => 
+  err ? console.error(err) : cb(files.includes(url)));
 
-exports.downloadUrls = urls => urls.forEach(url => exports.isUrlArchived(url, val => {
-  if (!val) {
-    let site = `${exports.paths.archivedSites}/${url}`;
-    fs.mkdir(site);
-    fs.writeFile(`${site}/index.html`);
-    http.get({'url': url}, `${site}/index.html`, (err, res) => {
-      err ? console.error(err) : console.log(site);
-    });
-  }
-}));    
+// request().pipe(fs.createwritestream())
+exports.downloadUrls = urls => urls.forEach(url => {
+  if (!url) { return; }
+  request(`http://${url}`).pipe(fs.createWriteStream(`${exports.paths.archivedSites}/${url}`));
+});   
 
