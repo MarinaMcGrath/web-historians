@@ -15,9 +15,9 @@ exports.serveAssets = (res, asset, cb) => {
     if (err) { 
       fs.readFile(`${archive.paths.archivedSites}${asset}`, 'utf8', (err, data) => {
         if (err) {
-          archive.addUrlToList(asset, exports.send404(res, cb));
+          archive.addUrlToList(asset, exports.send404(res));
         } else {
-          exports.sendResponse(res, data, 200, cb);
+          exports.sendResponse(res, data, 200);
         }
       });
     } else {
@@ -26,16 +26,17 @@ exports.serveAssets = (res, asset, cb) => {
   });  
 };
 
-exports.sendResponse = (res, obj, status, cb) => {
+exports.sendResponse = (res, obj, status) => {
   res.writeHead(status, exports.headers);
   res.end(obj);
 };
 
-exports.send404 = (res, cb) => {
+exports.send404 = (res) => {
   exports.sendResponse(res, '404: Page not found', 404);
 };
 
-exports.sendRedirect = (res, location, status) => {
-//send to loading || send to archived
+exports.sendRedirect = (res, location, status) => {  
+  res.writeHead(status, {Location: location});
+  res.end();
 };
 
