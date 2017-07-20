@@ -41,7 +41,7 @@ exports.downloadUrls = urls => urls.forEach(url => exports.isUrlArchived(url, va
     fs.mkdir(site);
     fs.writeFile(`${site}/index.html`);
     http.get({'url': url}, `${site}/index.html`, (err, res) => {
-      err ? console.log(err) : console.log(res.code, res.header, res.file);
+      err ? console.error(err) : console.log(site);
     });
   }
 }));    
