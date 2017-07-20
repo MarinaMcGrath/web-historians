@@ -10,31 +10,28 @@ exports.headers = {
   'Content-Type': 'text/html'
 };
 
-
 exports.serveAssets = (res, asset, cb) => {
-  let statusCode = 200;
   fs.readFile(`${archive.paths.siteAssets}${asset}`, 'utf8', (err, data) => {
     if (err) { 
-      fs.readFile(`${archive.paths.archivedAssets}${asset}`, 'utf8', (err, data) => {
+      fs.readFile(`${archive.paths.archivedSites}${asset}`, 'utf8', (err, data) => {
         if (err) {
-          exports.send404(err);
+          archive.addUrlToList(asset, exports.send404(res, cb));
         } else {
-          exports.sendResponse();
+          exports.sendResponse(res, data, 200, cb);
         }
       });
     } else {
-      exports.sendResponse();
+      exports.sendResponse(res, data, 200);
     }    
   });  
-
 };
 
-exports.sendResponse = (res, obj, status) => {
-  res.writeHead(statusCode, exports.headers);
+exports.sendResponse = (res, obj, status, cb) => {
+  res.writeHead(status, exports.headers);
   res.end(obj);
 };
 
-exports.send404 = (res) => {
+exports.send404 = (res, cb) => {
   exports.sendResponse(res, '404: Page not found', 404);
 };
 
