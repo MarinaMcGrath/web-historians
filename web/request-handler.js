@@ -1,7 +1,8 @@
 const path = require('path');
 const archive = require('../helpers/archive-helpers');
-const http = require('./http-helpers.js');
+const httpHelp = require('./http-helpers.js');
 const url = require('url');
+const request = require('request');
 // require more modules/folders here!
 
 exports.handleRequest = (req, res) => {
@@ -10,21 +11,32 @@ exports.handleRequest = (req, res) => {
     if (urlPath === '/') {
       urlPath = '/index.html';
     }
-    http.serveAssets(res, urlPath, (err, data) => {
+    httpHelp.serveAssets(res, urlPath, (err, data) => {
       if (urlPath[0] === '/') { urlPath = urlPath.slice(1); }
       if (err) { console.error(err); }
       archive.isUrlInList(urlPath, (found) => 
-        found ? http.sendRedirect(res, 'loading.html', 302) : http.send404(res));
+        found ? httpHelp.sendRedirect(res, 'loading.html', 302) : httpHelp.send404(res));
     });
   }  
   if (req.method === 'POST') {
-    //req.on('data')
-    //remember http://
-    //isurl in list
-    //is it archived
-    //send redirect
-    //addurl to list
-    //don't use sendresponse
-
+    req.on('data', (response) => {
+      let resUrl = response.toString('utf8').split('=')[1].replace('http://', '');
+      archive.isUrlInList(resUrl, (inList) => {
+        if (inList) {
+          archive.isUrlArchived(resUrl, (isArchived) => {
+            if (isArchived) {
+              httpHelp.sendRedirect(res, '/' + resUrl, 200);
+            } else {
+              httpHelp.sendRedirect(res, '/loading.html', 302);
+            }
+          });
+        } else {
+          console.log(resUrl);
+          archive.addUrlToList(`${resUrl}\n`, (resUrl) => {
+            httpHelp.sendRedirect(res, '/loading.html', 302);
+          });
+        }
+      }); 
+    });
   }
 };

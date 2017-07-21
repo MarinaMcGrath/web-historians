@@ -34,7 +34,6 @@ exports.addUrlToList = (url, cb) => fs.appendFile(exports.paths.list, url, 'utf8
 exports.isUrlArchived = (url, cb) => fs.readdir(exports.paths.archivedSites, 'utf8', (err, files) => 
   err ? console.error(err) : cb(files.includes(url)));
 
-// request().pipe(fs.createwritestream())
 exports.downloadUrls = urls => urls.forEach(url => {
   if (!url) { return; }
   request(`http://${url}`).pipe(fs.createWriteStream(`${exports.paths.archivedSites}/${url}`));
